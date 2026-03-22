@@ -321,6 +321,44 @@ install_cursor_extensions() {
   log "Installed $count Cursor extensions"
 }
 
+install_essential_apps() {
+  local apps=(
+    "iterm2"
+    "orbstack"
+    "raycast"
+    "1password"
+    "1password-cli"
+    "tailscale"
+    "obsidian"
+    "betterdisplay"
+    "aldente"
+    "claude"
+  )
+
+  if ! command -v brew &>/dev/null; then
+    warn "Homebrew not available — cannot install essential apps"
+    return 1
+  fi
+
+  log "Installing essential apps via Homebrew..."
+  local installed=0
+  local skipped=0
+  for app in "${apps[@]}"; do
+    if brew list --cask "$app" &>/dev/null; then
+      log "$app already installed"
+      ((skipped++))
+    else
+      if brew install --cask "$app" 2>&1; then
+        ((installed++))
+      else
+        warn "Failed to install $app"
+      fi
+    fi
+  done
+
+  log "Apps: $installed installed, $skipped already present"
+}
+
 add_ssh_keys() {
   local keys=()
   for key in ~/.ssh/id_ed25519 ~/.ssh/id_ed25519_* ~/.ssh/id_rsa ~/.ssh/id_rsa_* ~/.ssh/id_ecdsa ~/.ssh/id_ecdsa_*; do
@@ -339,13 +377,13 @@ install_pnpm
 install_uv
 install_rust
 install_cursor_extensions
+install_essential_apps
 add_ssh_keys
 
-# --- Done ---
 echo ""
 echo "=== RESTORE COMPLETE ==="
 echo ""
-echo "REMAINING MANUAL STEPS:"
+echo "NEXT STEPS:"
 echo ""
 echo "  1. Login to apps:"
 echo "     - 1Password"
@@ -355,23 +393,8 @@ echo ""
 echo "  2. Restart shell:"
 echo "     exec zsh"
 echo ""
-echo "========================================="
-echo "APPS TO INSTALL MANUALLY (not in Brewfile):"
-echo "========================================="
-echo "  • Raycast        - https://raycast.com/download"
-echo "  • iTerm2         - brew install --cask iterm2"
-echo "  • 1Password      - https://1password.com/downloads"
-echo "  • OrbStack       - brew install --cask orbstack"
-echo "  • Claude Desktop - https://claude.ai/download"
-echo "  • Obsidian       - https://obsidian.md/download"
-echo "  • Tailscale      - brew install --cask tailscale (or App Store)"
-echo "  • BetterDisplay  - https://betterdisplay.pro (HiDPI, display control)"
-echo "  • AlDente        - https://apphousekitchen.com (battery health for MacBook)"
-echo "========================================="
 
-# --- Error summary ---
 if [ ${#ERRORS[@]} -gt 0 ]; then
-  echo ""
   echo "⚠ WARNINGS (${#ERRORS[@]} steps had issues):"
   for err in "${ERRORS[@]}"; do
     echo "  • $err"

@@ -30,6 +30,7 @@ The script auto-restores configs, shell stack (zoxide, starship, fzf), macOS def
 - Rust (rustup)
 - Cursor extensions
 - SSH keys to agent
+- **Essential apps**: iTerm2, OrbStack, Raycast, 1Password, Tailscale, Obsidian, BetterDisplay, AlDente, Claude
 
 ### Login to apps
 - 1Password
@@ -62,18 +63,6 @@ exec zsh
 | **Docker** | Images list, volumes list | — |
 | **macOS defaults** | Dock, Finder, key repeat, screenshot location | Applied automatically |
 | **Shell stack** | — | zoxide, starship, fzf, autosuggestions, syntax-hl added to `.zshrc` |
-
-## Apps to install manually
-
-- **Raycast** — https://raycast.com/download
-- **iTerm2** — `brew install --cask iterm2`
-- **1Password** — https://1password.com/downloads
-- **OrbStack** — `brew install --cask orbstack`
-- **Claude Desktop** — https://claude.ai/download
-- **Obsidian** — https://obsidian.md/download
-- **Tailscale** — `brew install --cask tailscale` (VPN/mesh networking)
-- **BetterDisplay** — https://betterdisplay.pro (HiDPI, display control)
-- **AlDente** — https://apphousekitchen.com (battery health for MacBook)
 
 ## OPTIONAL: Solana / Go tools
 
