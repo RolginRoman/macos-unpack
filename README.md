@@ -17,10 +17,8 @@ Transfer to new machine via AirDrop, scp, cloud, or USB.
 
 ## ON NEW MACHINE
 
-### 1. Run unpack script
 ```bash
-chmod +x unpack-migration.sh
-./unpack-migration.sh ~/macos-migration-*.tar.gz
+curl -sSL https://raw.githubusercontent.com/RolginRoman/macos-unpack/main/unpack-migration.sh | bash -s -- ~/macos-migration-*.tar.gz
 ```
 
 The script auto-restores configs, shell stack (zoxide, starship, fzf), macOS defaults, and **auto-installs the full toolchain**:
@@ -33,12 +31,12 @@ The script auto-restores configs, shell stack (zoxide, starship, fzf), macOS def
 - Cursor extensions
 - SSH keys to agent
 
-### 2. Login to apps
+### Login to apps
 - 1Password
 - Raycast
 - OrbStack
 
-### 3. Restart shell
+### Restart shell
 ```bash
 exec zsh
 ```
