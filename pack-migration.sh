@@ -153,7 +153,6 @@ pipx
 orbstack
 docker-completion
 podman
-colima
 
 # Fonts (casks)
 font-meslo-lg-nerd-font
@@ -171,12 +170,9 @@ obsidian
 cursor
 zed
 visual-studio-code
-rectangle
 shottr
 appcleaner
-kap
 vlc
-slack
 EOF
 
 echo "  Saved recommended packages list"
