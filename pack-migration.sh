@@ -5,13 +5,6 @@ BACKUP_DIR="$HOME/migration-backup"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 ARCHIVE_NAME="macos-migration-$TIMESTAMP"
 
-ARCHIVE="$1"
-
-if [ -z "$ARCHIVE" ]; then
-  echo "Usage: $0 <archive.tar.gz>"
-  exit 1
-fi
-
 echo "=== macOS Migration Pack Script ==="
 echo "Creating backup in: $BACKUP_DIR"
 rm -rf "$BACKUP_DIR"

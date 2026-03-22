@@ -153,15 +153,17 @@ add_to_zshrc() {
   fi
 }
 
-add_to_zshrc 'zoxide init' 'eval "$(zoxide init zsh --cmd cd)"'
-add_to_zshrc 'starship init' 'eval "$(starship init zsh)"'
-add_to_zshrc 'fzf.zsh' '[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh'
-
-BREW_PREFIX="$(brew --prefix 2>/dev/null || echo '/opt/homebrew')"
-add_to_zshrc 'zsh-autosuggestions' "source ${BREW_PREFIX}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
-add_to_zshrc 'zsh-fast-syntax-highlighting' "source ${BREW_PREFIX}/share/zsh-fast-syntax-highlighting/zsh-fast-syntax-highlighting.zsh"
-
-log "(All idempotent — safe to re-run)"
+configure_shell_stack() {
+  local brew_prefix="$(brew --prefix 2>/dev/null || echo '/opt/homebrew')"
+  
+  add_to_zshrc 'zoxide init' 'eval "$(zoxide init zsh --cmd cd)"'
+  add_to_zshrc 'starship init' 'eval "$(starship init zsh)"'
+  add_to_zshrc 'fzf.zsh' '[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh'
+  add_to_zshrc 'zsh-autosuggestions' "source ${brew_prefix}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+  add_to_zshrc 'zsh-fast-syntax-highlighting' "source ${brew_prefix}/share/zsh-fast-syntax-highlighting/zsh-fast-syntax-highlighting.zsh"
+  
+  log "(All idempotent — safe to re-run)"
+}
 
 # --- [9] macOS defaults (auto) ---
 echo ""
@@ -378,6 +380,7 @@ install_uv
 install_rust
 install_cursor_extensions
 install_essential_apps
+configure_shell_stack
 add_ssh_keys
 
 echo ""
