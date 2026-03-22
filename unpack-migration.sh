@@ -36,10 +36,10 @@ echo "=== RESTORING CONFIGS ==="
 
 # --- [1] Shell configs ---
 echo "[1] Shell configs..."
-for f in "$RESTORE_DIR/configs/"*; do
-  [ -f "$f" ] || continue
-  cp "$f" ~ 2>/dev/null || warn "Could not restore $(basename "$f")"
+for f in .zshrc .zshenv .zsh_history .bashrc .bash_profile .bash_history .bash_aliases .bash_completion .profile .inputrc .gitconfig .npmrc; do
+  [ -f "$RESTORE_DIR/configs/$f" ] && cp "$RESTORE_DIR/configs/$f" ~/ 2>/dev/null || true
 done
+log "Shell configs restored"
 
 # --- [2] SSH keys ---
 echo "[2] SSH keys..."
