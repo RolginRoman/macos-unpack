@@ -156,8 +156,10 @@ add_to_zshrc() {
 add_to_zshrc 'zoxide init' 'eval "$(zoxide init zsh --cmd cd)"'
 add_to_zshrc 'starship init' 'eval "$(starship init zsh)"'
 add_to_zshrc 'fzf.zsh' '[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh'
-add_to_zshrc 'zsh-autosuggestions' 'source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh'
-add_to_zshrc 'zsh-fast-syntax-highlighting' 'source /opt/homebrew/share/zsh-fast-syntax-highlighting/zsh-fast-syntax-highlighting.zsh'
+
+BREW_PREFIX="$(brew --prefix 2>/dev/null || echo '/opt/homebrew')"
+add_to_zshrc 'zsh-autosuggestions' "source ${BREW_PREFIX}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+add_to_zshrc 'zsh-fast-syntax-highlighting' "source ${BREW_PREFIX}/share/zsh-fast-syntax-highlighting/zsh-fast-syntax-highlighting.zsh"
 
 log "(All idempotent — safe to re-run)"
 
@@ -217,6 +219,9 @@ install_homebrew() {
 
 install_brewfile() {
   local brewfile="$RESTORE_DIR/Brewfile"
+  local filtered_brewfile="$RESTORE_DIR/Brewfile.filtered"
+  local deprecated="openssl@1.1|openssl@1|python@3.9|python@3.8|node@14|node@16"
+  
   if [[ ! -f "$brewfile" ]]; then
     log "(no Brewfile in archive — skipped)"
     return 0
@@ -225,8 +230,11 @@ install_brewfile() {
     warn "Cannot install Brewfile — Homebrew not available"
     return 1
   fi
+  
+  grep -Ev "^brew \"($deprecated)\"" "$brewfile" > "$filtered_brewfile"
+  
   log "Installing packages from Brewfile..."
-  if brew bundle install --file="$brewfile" 2>&1; then
+  if brew bundle install --file="$filtered_brewfile" 2>&1; then
     log "Brewfile installed successfully"
   else
     warn "Some Brewfile packages failed — check output above"
@@ -314,9 +322,13 @@ install_cursor_extensions() {
 }
 
 add_ssh_keys() {
-  if ls ~/.ssh/id_ed25519_* >/dev/null 2>&1; then
+  local keys=()
+  for key in ~/.ssh/id_ed25519 ~/.ssh/id_ed25519_* ~/.ssh/id_rsa ~/.ssh/id_rsa_* ~/.ssh/id_ecdsa ~/.ssh/id_ecdsa_*; do
+    [[ -f "$key" && ! "$key" == *.pub ]] && keys+=("$key")
+  done
+  if [[ ${#keys[@]} -gt 0 ]]; then
     log "Adding SSH keys to agent (may prompt for passphrase)..."
-    ssh-add ~/.ssh/id_ed25519_* 2>/dev/null || log "(SSH agent add skipped or needs passphrase)"
+    ssh-add "${keys[@]}" 2>/dev/null || log "(SSH agent add skipped or needs passphrase)"
   fi
 }
 
