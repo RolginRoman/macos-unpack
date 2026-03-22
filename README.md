@@ -23,58 +23,22 @@ chmod +x unpack-migration.sh
 ./unpack-migration.sh ~/macos-migration-*.tar.gz
 ```
 
-The script auto-restores configs, shell stack (zoxide, starship, fzf), and macOS defaults. It prints the remaining manual steps.
+The script auto-restores configs, shell stack (zoxide, starship, fzf), macOS defaults, and **auto-installs the full toolchain**:
+- Homebrew (if not present)
+- All packages from Brewfile
+- fnm + Node (from saved version or LTS)
+- pnpm (via corepack)
+- uv (Python)
+- Rust (rustup)
+- Cursor extensions
+- SSH keys to agent
 
-### 2. Install Homebrew
-```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
-eval "$(/opt/homebrew/bin/brew shellenv)"
-```
-
-### 3. Install packages
-```bash
-brew bundle install --file=~/migration-restore/Brewfile
-```
-
-### 4. Install Node (fnm)
-```bash
-fnm install --lts
-fnm use $(cat ~/migration-restore/fnm-node-version.txt 2>/dev/null || echo 'lts')
-```
-
-### 5. Install pnpm
-```bash
-corepack enable && corepack prepare pnpm@latest --activate
-```
-
-### 6. Install uv (Python)
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-```
-
-### 7. Install Rust
-```bash
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-source ~/.cargo/env
-```
-
-### 8. Install Cursor extensions
-```bash
-xargs -n1 cursor --install-extension < ~/migration-restore/editors/cursor-extensions.txt
-```
-
-### 9. Login to apps
+### 2. Login to apps
 - 1Password
 - Raycast
 - OrbStack
 
-### 10. Add SSH keys
-```bash
-ssh-add ~/.ssh/id_ed25519_*
-```
-
-### 11. Restart shell
+### 3. Restart shell
 ```bash
 exec zsh
 ```
@@ -85,19 +49,19 @@ exec zsh
 
 | Category | Pack | Unpack |
 |----------|------|--------|
-| **Shell** | `.zshrc`, `.zsh_history`, `.gitconfig`, `.npmrc` | Restored to `~/` |
+| **Shell** | `.zshrc`, `.zsh_history`, `.bashrc`, `.bash_aliases`, `.bash_history`, `.inputrc`, `.gitconfig`, `.npmrc` | Restored to `~/` |
 | **SSH** | All keys, `config`, `known_hosts` | Restored to `~/.ssh/` |
-| **Homebrew** | `Brewfile` | Manual `brew bundle install` |
-| **Node** | fnm version, global npm packages | Manual fnm install |
-| **Rust** | Toolchains, cargo tools | Manual rustup install |
-| **Python** | uv/pip packages list | Manual uv install |
+| **Homebrew** | `Brewfile` | Auto-installed (if not present) |
+| **Node** | fnm version, global npm packages | Auto-installed (fnm + Node + pnpm) |
+| **Rust** | Toolchains, cargo tools | Auto-installed (rustup) |
+| **Python** | uv/pip packages list | Auto-installed (uv) |
 | **Go** | Installed tools list | — |
-| **Editors** | Cursor, VS Code, Zed configs + extensions | Restored automatically |
+| **Editors** | Cursor, VS Code, Zed configs + extensions | Restored + extensions auto-installed |
 | **Apps** | gh CLI, OpenCode, Solana, Claude skills | Restored automatically |
 | **Fonts** | All fonts | Restored to `~/Library/Fonts/` |
 | **Databases** | PostgreSQL dumps | Restored if psql available |
 | **Docker** | Images list, volumes list | — |
-| **macOS defaults** | Dock, Finder, Screensaver, key repeat, screenshot location | Applied automatically |
+| **macOS defaults** | Dock, Finder, key repeat, screenshot location | Applied automatically |
 | **Shell stack** | — | zoxide, starship, fzf, autosuggestions, syntax-hl added to `.zshrc` |
 
 ## Apps to install manually
