@@ -180,46 +180,160 @@ defaults write com.apple.screencapture location ~/Screenshots 2>/dev/null || war
 killall Dock 2>/dev/null || true
 killall SystemUIServer 2>/dev/null || true
 
+# --- [10] Auto-install toolchain ---
+echo ""
+echo "=== AUTO-INSTALLING TOOLCHAIN ==="
+
+export HOMEBREW_NO_AUTO_UPDATE=1
+
+install_homebrew() {
+  if command -v brew &>/dev/null; then
+    log "Homebrew already installed"
+    return 0
+  fi
+  if [[ -x "/opt/homebrew/bin/brew" ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+    log "Homebrew found, added to PATH"
+    return 0
+  fi
+  log "Installing Homebrew..."
+  NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  if [[ -x "/opt/homebrew/bin/brew" ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+    grep -q 'brew shellenv' ~/.zprofile 2>/dev/null || echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+  elif [[ -x "/usr/local/bin/brew" ]]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+  fi
+  command -v brew &>/dev/null || warn "Homebrew installation failed"
+}
+
+install_brewfile() {
+  local brewfile="$RESTORE_DIR/Brewfile"
+  if [[ ! -f "$brewfile" ]]; then
+    log "(no Brewfile in archive — skipped)"
+    return 0
+  fi
+  if ! command -v brew &>/dev/null; then
+    warn "Cannot install Brewfile — Homebrew not available"
+    return 1
+  fi
+  log "Installing packages from Brewfile..."
+  if brew bundle install --file="$brewfile" 2>&1; then
+    log "Brewfile installed successfully"
+  else
+    warn "Some Brewfile packages failed — check output above"
+  fi
+}
+
+install_fnm() {
+  if command -v fnm &>/dev/null; then
+    log "fnm already installed"
+  else
+    if command -v brew &>/dev/null; then
+      log "Installing fnm via Homebrew..."
+      brew install fnm 2>/dev/null || warn "fnm install failed"
+    fi
+  fi
+  if command -v fnm &>/dev/null; then
+    export PATH="$HOME/.fnm:$PATH"
+    eval "$(fnm env --shell bash 2>/dev/null)" || true
+    local node_ver
+    node_ver=$(cat "$RESTORE_DIR/fnm-node-version.txt" 2>/dev/null || echo "lts")
+    log "Installing Node $node_ver via fnm..."
+    fnm install "$node_ver" 2>/dev/null || fnm install --lts 2>/dev/null || warn "fnm Node install failed"
+    fnm use "$node_ver" 2>/dev/null || fnm use --lts 2>/dev/null || true
+    grep -q 'fnm env' ~/.zshrc 2>/dev/null || echo 'eval "$(fnm env --use-on-cd)"' >> ~/.zshrc
+  fi
+}
+
+install_pnpm() {
+  if command -v pnpm &>/dev/null; then
+    log "pnpm already installed"
+    return 0
+  fi
+  if command -v corepack &>/dev/null; then
+    log "Enabling pnpm via corepack..."
+    corepack enable 2>/dev/null && corepack prepare pnpm@latest --activate 2>/dev/null || warn "pnpm install failed"
+  else
+    log "(corepack not available — install Node first)"
+  fi
+}
+
+install_uv() {
+  if command -v uv &>/dev/null; then
+    log "uv already installed"
+    return 0
+  fi
+  log "Installing uv..."
+  if curl -LsSf https://astral.sh/uv/install.sh | sh 2>/dev/null; then
+    export PATH="$HOME/.local/bin:$PATH"
+    log "uv installed successfully"
+  else
+    warn "uv install failed"
+  fi
+}
+
+install_rust() {
+  if command -v rustc &>/dev/null; then
+    log "Rust already installed"
+    return 0
+  fi
+  log "Installing Rust..."
+  if curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y 2>/dev/null; then
+    source "$HOME/.cargo/env" 2>/dev/null || true
+    log "Rust installed successfully"
+  else
+    warn "Rust install failed"
+  fi
+}
+
+install_cursor_extensions() {
+  local ext_file="$RESTORE_DIR/editors/cursor-extensions.txt"
+  if [[ ! -f "$ext_file" ]]; then
+    return 0
+  fi
+  if ! command -v cursor &>/dev/null; then
+    log "(cursor CLI not available — skip extensions)"
+    return 0
+  fi
+  log "Installing Cursor extensions..."
+  local count=0
+  while IFS= read -r ext; do
+    [[ -n "$ext" ]] || continue
+    cursor --install-extension "$ext" 2>/dev/null && ((count++))
+  done < "$ext_file"
+  log "Installed $count Cursor extensions"
+}
+
+add_ssh_keys() {
+  if ls ~/.ssh/id_ed25519_* >/dev/null 2>&1; then
+    log "Adding SSH keys to agent (may prompt for passphrase)..."
+    ssh-add ~/.ssh/id_ed25519_* 2>/dev/null || log "(SSH agent add skipped or needs passphrase)"
+  fi
+}
+
+install_homebrew
+install_brewfile
+install_fnm
+install_pnpm
+install_uv
+install_rust
+install_cursor_extensions
+add_ssh_keys
+
 # --- Done ---
 echo ""
 echo "=== RESTORE COMPLETE ==="
 echo ""
-echo "MANUAL STEPS REQUIRED:"
+echo "REMAINING MANUAL STEPS:"
 echo ""
-echo "  1. Install Homebrew:"
-echo "     /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
-echo ""
-echo "  2. Install packages from Brewfile:"
-[ -f "$RESTORE_DIR/Brewfile" ] && echo "     brew bundle install --file=$RESTORE_DIR/Brewfile" || echo "     (no Brewfile in archive)"
-echo ""
-echo "  3. Install Node (fnm):"
-echo "     fnm install --lts"
-echo "     fnm use \$(cat $RESTORE_DIR/fnm-node-version.txt 2>/dev/null || echo 'lts')"
-echo ""
-echo "  4. Install pnpm:"
-echo "     corepack enable && corepack prepare pnpm@latest --activate"
-echo ""
-echo "  5. Install uv (Python):"
-echo "     curl -LsSf https://astral.sh/uv/install.sh | sh"
-echo ""
-echo "  6. Install Rust:"
-echo "     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh"
-echo ""
-if [ -f "$RESTORE_DIR/editors/cursor-extensions.txt" ]; then
-echo "  7. Install Cursor extensions:"
-echo "     xargs -n1 cursor --install-extension < $RESTORE_DIR/editors/cursor-extensions.txt"
-echo ""
-fi
-echo "  8. Login to apps:"
+echo "  1. Login to apps:"
 echo "     - 1Password"
 echo "     - Raycast"
 echo "     - OrbStack"
 echo ""
-echo "  9. Add SSH keys to agent:"
-echo "     ssh-add ~/.ssh/id_ed25519_*"
-echo ""
-echo "  10. Restart shell:"
-echo "      exec zsh"
+echo "  2. Restart shell:"
+echo "     exec zsh"
 echo ""
 echo "========================================="
 echo "APPS TO INSTALL MANUALLY (not in Brewfile):"
