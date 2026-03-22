@@ -25,11 +25,19 @@ mkdir -p "$BACKUP_DIR/recommended"
 echo ""
 
 mkdir -p "$BACKUP_DIR/configs"
+# Zsh configs
 cp -L ~/.zshrc "$BACKUP_DIR/configs/" 2>/dev/null || true
 cp -L ~/.zshenv "$BACKUP_DIR/configs/" 2>/dev/null || true
 cp -L ~/.zsh_history "$BACKUP_DIR/configs/" 2>/dev/null || true
+# Bash configs & aliases
+cp -L ~/.bashrc "$BACKUP_DIR/configs/" 2>/dev/null || true
 cp -L ~/.bash_profile "$BACKUP_DIR/configs/" 2>/dev/null || true
+cp -L ~/.bash_history "$BACKUP_DIR/configs/" 2>/dev/null || true
+cp -L ~/.bash_aliases "$BACKUP_DIR/configs/" 2>/dev/null || true
+cp -L ~/.bash_completion "$BACKUP_DIR/configs/" 2>/dev/null || true
+# Other shell configs
 cp -L ~/.profile "$BACKUP_DIR/configs/" 2>/dev/null || true
+cp -L ~/.inputrc "$BACKUP_DIR/configs/" 2>/dev/null || true
 cp -L ~/.gitconfig "$BACKUP_DIR/configs/" 2>/dev/null || true
 cp -L ~/.npmrc "$BACKUP_DIR/configs/" 2>/dev/null || true
 
