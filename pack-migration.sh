@@ -98,45 +98,85 @@ defaults read com.apple.screensaver | grep -E "(idleTime|askForPassword)" > "$BA
 
 echo "[14/15] Saving recommended packages list..."
 cat > "$BACKUP_DIR/recommended/packages.txt" << 'EOF'
-# Additional useful dev tools (add to Brew bundle)
-watchman
-ln
-jq
+# Core utilities
+coreutils
+moreutils
+findutils
+gnu-sed
+wget
+curl
+
+# Search & code tools
 ripgrep
-eza
-shellcheck
-starship
-tmux
-zoxide
+the_silver_searcher
 fzf
-zsh-autosuggestions
-direnv
-zsh-fast-syntax-highlighting
+tree
+jq
 yq
+
+# Git & GitHub
+git
+git-lfs
+gh
+diff-so-fancy
+tig
+
+# Shell & prompt
+starship
+zoxide
+zsh-autosuggestions
+zsh-fast-syntax-highlighting
+direnv
+tmux
+shellcheck
 shfmt
-stylua
-delta
-# Languages & Runtimes
+
+# Development
+watchman
+eza
+ entr
+parallel
+ffmpeg
+
+# Languages & runtimes
 python@3.11
 go
 node
 rust
+
 # Package managers
 pnpm
 bun
 pipx
+
 # DevOps
 orbstack
 docker-completion
 podman
-# Utilities
-ffmpeg
-gh
-git
-git-lfs
-parallel
-wget
-curl
+colima
+
+# Fonts (casks)
+font-meslo-lg-nerd-font
+
+# GUI apps (casks)
+iterm2
+orbstack
+tailscale
+betterdisplay
+aldente
+raycast
+1password
+claude
+obsidian
+cursor
+zed
+visual-studio-code
+rectangle
+shottr
+appcleaner
+kap
+vlc
+slack
 EOF
 
 echo "  Saved recommended packages list"

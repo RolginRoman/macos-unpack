@@ -97,7 +97,7 @@ exec zsh
 | **Fonts** | All fonts | Restored to `~/Library/Fonts/` |
 | **Databases** | PostgreSQL dumps | Restored if psql available |
 | **Docker** | Images list, volumes list | — |
-| **macOS defaults** | Dock, Finder, Screensaver | Applied automatically |
+| **macOS defaults** | Dock, Finder, Screensaver, key repeat, screenshot location | Applied automatically |
 | **Shell stack** | — | zoxide, starship, fzf, autosuggestions, syntax-hl added to `.zshrc` |
 
 ## Apps to install manually
@@ -108,6 +108,9 @@ exec zsh
 - **OrbStack** — `brew install --cask orbstack`
 - **Claude Desktop** — https://claude.ai/download
 - **Obsidian** — https://obsidian.md/download
+- **Tailscale** — `brew install --cask tailscale` (VPN/mesh networking)
+- **BetterDisplay** — https://betterdisplay.pro (HiDPI, display control)
+- **AlDente** — https://apphousekitchen.com (battery health for MacBook)
 
 ## OPTIONAL: Solana / Go tools
 

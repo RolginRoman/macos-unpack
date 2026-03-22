@@ -157,14 +157,28 @@ log "(All idempotent — safe to re-run)"
 echo ""
 echo "=== APPLYING MACOS DEFAULTS ==="
 
+# Dock
 defaults write com.apple.dock autohide -bool true 2>/dev/null || warn "Could not set Dock autohide"
 defaults write com.apple.dock minimize-to-application -bool true 2>/dev/null || warn "Could not set Dock minimize"
+defaults write com.apple.dock autohide-time-modifier -float 0.5 2>/dev/null || warn "Could not set Dock animation speed"
+defaults write com.apple.dock autohide-delay -int 0 2>/dev/null || warn "Could not set Dock show delay"
+
+# Finder
 defaults write com.apple.finder AppleShowAllFiles -bool true 2>/dev/null || warn "Could not show hidden files"
 defaults write com.apple.finder AppleShowAllExtensions -bool true 2>/dev/null || warn "Could not show extensions"
 defaults write com.apple.finder ShowPathbar -bool true 2>/dev/null || warn "Could not show path bar"
+
+# Global
 defaults write -g AppleKeyboardUIMode -int 2 2>/dev/null || warn "Could not set keyboard UI mode"
 defaults write -g AppleShowScrollBars -string Always 2>/dev/null || warn "Could not set scroll bars"
+defaults write -g ApplePressAndHoldEnabled -bool false 2>/dev/null || warn "Could not enable key repeat"
+
+# Screenshots
+mkdir -p ~/Screenshots 2>/dev/null
+defaults write com.apple.screencapture location ~/Screenshots 2>/dev/null || warn "Could not set screenshot location"
+
 killall Dock 2>/dev/null || true
+killall SystemUIServer 2>/dev/null || true
 
 # --- Done ---
 echo ""
@@ -216,6 +230,9 @@ echo "  • 1Password      - https://1password.com/downloads"
 echo "  • OrbStack       - brew install --cask orbstack"
 echo "  • Claude Desktop - https://claude.ai/download"
 echo "  • Obsidian       - https://obsidian.md/download"
+echo "  • Tailscale      - brew install --cask tailscale (or App Store)"
+echo "  • BetterDisplay  - https://betterdisplay.pro (HiDPI, display control)"
+echo "  • AlDente        - https://apphousekitchen.com (battery health for MacBook)"
 echo "========================================="
 
 # --- Error summary ---
