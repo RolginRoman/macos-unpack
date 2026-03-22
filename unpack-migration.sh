@@ -65,8 +65,16 @@ else
   log "(no fonts in archive — skipped)"
 fi
 
-# --- [4] iTerm2 ---
-echo "[4] (skipped — iTerm2 plist not in backup)"
+# --- [4] Internet Accounts ---
+echo "[4] Internet Accounts..."
+if [ -d "$RESTORE_DIR/internet-accounts" ] && [ "$(ls -A "$RESTORE_DIR/internet-accounts" 2>/dev/null)" ]; then
+  mkdir -p ~/Library/Accounts
+  cp -R "$RESTORE_DIR/internet-accounts/"* ~/Library/Accounts/ 2>/dev/null || warn "Could not restore Internet Accounts"
+  chown -R $(whoami):staff ~/Library/Accounts 2>/dev/null || true
+  log "Internet Accounts restored — restart required"
+else
+  log "(no Internet Accounts in archive — skipped)"
+fi
 
 # --- [5] Editor configs ---
 echo "[5] Editor configs..."

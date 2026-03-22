@@ -57,6 +57,7 @@ exec zsh
 | **Editors** | Cursor, VS Code, Zed configs + extensions | Restored + extensions auto-installed |
 | **Apps** | gh CLI, OpenCode, Solana, Claude skills | Restored automatically |
 | **Fonts** | All fonts | Restored to `~/Library/Fonts/` |
+| **Internet Accounts** | `~/Library/Accounts/` (email, calendars, etc.) | Restored to `~/Library/Accounts/` |
 | **Databases** | PostgreSQL dumps | Restored if psql available |
 | **Docker** | Images list, volumes list | — |
 | **macOS defaults** | Dock, Finder, key repeat, screenshot location | Applied automatically |
