@@ -35,14 +35,14 @@ echo ""
 echo "=== RESTORING CONFIGS ==="
 
 # --- [1] Shell configs ---
-echo "[1] Shell configs..."
+echo "• Shell configs..."
 for f in .zshrc .zshenv .zsh_history .bashrc .bash_profile .bash_history .bash_aliases .bash_completion .profile .inputrc .gitconfig .npmrc; do
   [ -f "$RESTORE_DIR/configs/$f" ] && cp "$RESTORE_DIR/configs/$f" ~/ 2>/dev/null || true
 done
 log "Shell configs restored"
 
 # --- [2] SSH keys ---
-echo "[2] SSH keys..."
+echo "• SSH keys..."
 if [ -d "$RESTORE_DIR/ssh" ]; then
   mkdir -p ~/.ssh
   chmod 700 ~/.ssh
@@ -57,7 +57,7 @@ else
 fi
 
 # --- [3] Fonts ---
-echo "[3] Fonts..."
+echo "• Fonts..."
 if [ -d "$RESTORE_DIR/fonts" ] && [ "$(ls -A "$RESTORE_DIR/fonts" 2>/dev/null)" ]; then
   mkdir -p ~/Library/Fonts
   cp "$RESTORE_DIR/fonts/"* ~/Library/Fonts/ 2>/dev/null || warn "Could not restore fonts"
@@ -66,7 +66,7 @@ else
 fi
 
 # --- [4] Internet Accounts ---
-echo "[4] Internet Accounts..."
+echo "• Internet Accounts..."
 if [ -d "$RESTORE_DIR/internet-accounts" ] && [ "$(ls -A "$RESTORE_DIR/internet-accounts" 2>/dev/null)" ]; then
   mkdir -p ~/Library/Accounts
   cp -R "$RESTORE_DIR/internet-accounts/"* ~/Library/Accounts/ 2>/dev/null || warn "Could not restore Internet Accounts"
@@ -77,7 +77,7 @@ else
 fi
 
 # --- [5] Editor configs ---
-echo "[5] Editor configs..."
+echo "• Editor configs..."
 if [ -d "$RESTORE_DIR/editors/cursor" ]; then
   copy "$RESTORE_DIR/editors/cursor/." ~/Library/Application\ Support/Cursor/User/
 else
@@ -97,7 +97,7 @@ else
 fi
 
 # --- [6] App configs ---
-echo "[6] App configs..."
+echo "• App configs..."
 if [ -f "$RESTORE_DIR/app-configs/gh-config.yml" ]; then
   mkdir -p ~/.config/gh
   cp "$RESTORE_DIR/app-configs/gh-config.yml" ~/.config/gh/config.yml 2>/dev/null || warn "Could not restore gh config"
@@ -118,8 +118,24 @@ if [ -f "$RESTORE_DIR/app-configs/local-bin-env" ]; then
   cp "$RESTORE_DIR/app-configs/local-bin-env" ~/.local/bin/env 2>/dev/null || warn "Could not restore ~/.local/bin/env"
 fi
 
-# --- [7] Database dumps ---
-echo "[7] Database dumps..."
+echo "• Chrome profiles..."
+if [ -d "$RESTORE_DIR/chrome" ]; then
+  CHROME_DIR=~/Library/Application\ Support/Google/Chrome
+  mkdir -p "$CHROME_DIR"
+  cp "$RESTORE_DIR/chrome/Local State" "$CHROME_DIR/" 2>/dev/null || warn "Could not restore Chrome Local State"
+  for profile in "$RESTORE_DIR/chrome"/Profile* "$RESTORE_DIR/chrome"/Default; do
+    [ -d "$profile" ] || continue
+    profile_name=$(basename "$profile")
+    log "Restoring: $profile_name"
+    rm -rf "$CHROME_DIR/$profile_name" 2>/dev/null
+    cp -RL "$profile" "$CHROME_DIR/" 2>/dev/null || warn "Could not restore $profile_name"
+  done
+  chmod -R 700 "$CHROME_DIR" 2>/dev/null || true
+else
+  log "(no Chrome profiles in archive — skipped)"
+fi
+
+echo "• Database dumps..."
 if [ -d "$RESTORE_DIR/databases" ] && ls "$RESTORE_DIR/databases/"*.sql >/dev/null 2>&1; then
   if command -v psql &>/dev/null; then
     for dump in "$RESTORE_DIR/databases/"*.sql; do
@@ -136,7 +152,6 @@ else
   log "(no database dumps in archive — skipped)"
 fi
 
-# --- [8] Shell stack (auto) ---
 echo ""
 echo "=== AUTO-CONFIGURING SHELL STACK ==="
 
@@ -165,7 +180,6 @@ configure_shell_stack() {
   log "(All idempotent — safe to re-run)"
 }
 
-# --- [9] macOS defaults (auto) ---
 echo ""
 echo "=== APPLYING MACOS DEFAULTS ==="
 
@@ -192,7 +206,6 @@ defaults write com.apple.screencapture location ~/Screenshots 2>/dev/null || war
 killall Dock 2>/dev/null || true
 killall SystemUIServer 2>/dev/null || true
 
-# --- [10] Auto-install toolchain ---
 echo ""
 echo "=== AUTO-INSTALLING TOOLCHAIN ==="
 
@@ -393,7 +406,10 @@ echo "     - 1Password"
 echo "     - Raycast"
 echo "     - OrbStack"
 echo ""
-echo "  2. Restart shell:"
+echo "  2. Open Chrome and verify profiles appear"
+echo "     (go to chrome://extensions to check extensions)"
+echo ""
+echo "  3. Restart shell:"
 echo "     exec zsh"
 echo ""
 
